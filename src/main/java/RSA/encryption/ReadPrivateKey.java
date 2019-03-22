@@ -3,6 +3,7 @@ package RSA.encryption;
 import RSA.Parameters;
 import RSA.generateKeys.GenerateKeysRSA;
 import RSA.math.HashAlgorithmMD5;
+import tools.GetConfig;
 
 import java.time.DateTimeException;
 import java.time.LocalDate;
@@ -13,43 +14,56 @@ import java.util.regex.Pattern;
 
 public class ReadPrivateKey {
     private String d;
-    private String n;
+    private String p;
+    private String q;
 
     public String getD() {
         return d;
     }
 
-    public String getN() {
-        return n;
+    public String getP() {
+        return p;
+    }
+
+    public String getQ() {
+        return q;
     }
 
     public boolean readPrivateKey(){
         List<String> lines1;
         List<String> lines2;
+        ReadFile readFile = null;
         try {
-            lines1 = new ReadFileWin().readFile(Parameters.SavePrivateKey1Path, Parameters.Encode);
-            lines2 = new ReadFileWin().readFile(Parameters.SavePrivateKey2Path, Parameters.Encode);
+            readFile = (ReadFile) Class.forName(GetConfig.getProperty("ReadFile")).newInstance();
+        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e1) {
+            e1.printStackTrace();
+        }
+        try {
+            assert readFile != null;
+            lines1 = readFile.readFile(Parameters.SavePrivateKey1Path, Parameters.Encode);
+            lines2 = readFile.readFile(Parameters.SavePrivateKey2Path, Parameters.Encode);
             if (new HashAlgorithmMD5().isHashEquals(lines1.get(2), lines1.get(0) + lines1.get(1))
-                    && new HashAlgorithmMD5().isHashEquals(lines2.get(1), lines2.get(0))) {
+                    && new HashAlgorithmMD5().isHashEquals(lines2.get(2), lines2.get(0) + lines2.get(1))) {
                 d = new String(Base64.getDecoder().decode(lines1.get(0)), Parameters.Encode);
                 String date = new String(Base64.getDecoder().decode(lines1.get(1)), Parameters.Encode);
                 //Add check for length
-                n = new String(Base64.getDecoder().decode(lines2.get(0)), Parameters.Encode);
+                p = new String(Base64.getDecoder().decode(lines2.get(0)), Parameters.Encode);
                 //Add check for length
+                q = new String(Base64.getDecoder().decode(lines2.get(1)), Parameters.Encode);
                 if (!isDateFormat(date) || !LocalDate.now().isBefore(LocalDate.parse(date))) {
-                    System.out.println("isDateFormat Exception");
-                    throw new DateTimeException("");
+                    throw new DateTimeException("Срок действия ключа истек");
                 }
             } else{
-                System.out.println("HashAlgorithmMD5 Exception");
-                throw new Exception();
+                System.out.println("Не соответствуют контрольные суммы.");
+                throw new IllegalStateException("Не соответствуют контрольные суммы.");
             }
         } catch (Exception e) {
             GenerateKeysRSA generateKeysRSA = new GenerateKeysRSA();
             generateKeysRSA.generateKeysRSA(Parameters.keyLength);
             System.out.println("Exception e1");
             d = generateKeysRSA.getPrivateKey()[0];
-            n = generateKeysRSA.getPrivateKey()[1];
+            p = generateKeysRSA.getPrivateKey()[1];
+            q = generateKeysRSA.getPrivateKey()[2];
         }
         return true;
     }

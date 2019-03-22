@@ -42,13 +42,9 @@ public class GenerateKeysRSA {
         }
         d = new GetSecretKeyJavamodInverse().getSecretKey(e, euler);
         n = q.multiply(p);
-        System.out.println("Публичный ключ: ");
-        System.out.println(e + ";\n" + n);
-        System.out.println("Приватный ключ: ");
-        System.out.println(d + ";\n" + n);
-        System.out.println("Длина ключа: " + n.bitLength());
         publicKey = new String[]{e.toString(Parameters.RadixForKeys), n.toString(Parameters.RadixForKeys)};
-        privateKey = new String[]{d.toString(Parameters.RadixForKeys), n.toString(Parameters.RadixForKeys)};
+        privateKey = new String[]{d.toString(Parameters.RadixForKeys), p.toString(Parameters.RadixForKeys)
+                , q.toString(Parameters.RadixForKeys)};
         new SavePrivateAndPublicKey().savePrivateKey(this);
         new SavePrivateAndPublicKey().savePublicKey(this);
         return true;
@@ -73,6 +69,6 @@ public class GenerateKeysRSA {
             }
             p = getPrimeNumberP.getPrimeNumber();
             q = getPrimeNumberQ.getPrimeNumber();
-        } while (p.equals(q));
+        } while (p.equals(q) && q.multiply(p).bitLength() < q.bitLength()*2);
     }
 }

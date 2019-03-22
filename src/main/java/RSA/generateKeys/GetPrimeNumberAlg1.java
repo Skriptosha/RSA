@@ -32,7 +32,7 @@ public class GetPrimeNumberAlg1 implements GetPrimeNumber, Runnable {
     @Override
     public void run() {
         if (count == 0) throw new NullPointerException("Необходимо предварительно вызвать " +
-                "setParameters(BigInteger basic, BigInteger degree, BigInteger module)");
+                "setBits(int bits)");
         Timer timer = new Timer(), timer2 = new Timer();
         RandomGeneration rand = new RandomBitsGeneration();
         IsNumberPrime algorithm2 = new MillerRabinTest();

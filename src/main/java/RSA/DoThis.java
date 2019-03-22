@@ -1,38 +1,33 @@
 package RSA;
 
-import RSA.encryption.DecryptionRSA;
-import RSA.encryption.EncryptionRSA;
-import RSA.encryption.ReadFile;
-import RSA.encryption.ReadFileWin;
+import RSA.encryption.GetFileForDecWin;
+import RSA.encryption.GetFileForDecryption;
+import RSA.encryption.GetFileForEncWin;
+import RSA.encryption.GetFileForEncryption;
+import tools.GetConfig;
 
-import java.io.IOException;
 import java.math.BigInteger;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Random;
 
 public class DoThis {
     public static void main(String[] args) {
-        ReadFile readFile = new ReadFileWin();
-        List<String> list = new ArrayList<>();
+        GetConfig.setNameProperties("TestProp");
         Timer timer = new Timer(), timer2 = new Timer();
-        timer.start();
+
+        String EncText = "test/EncText.txt";
+        String Text = "test/OperaSetup.exe";
+        String DecText = "test/OperaSetupDec.exe";
         for (int i = 0; i < 1; i++) {
-            System.out.println("generateKeysRSA timer: " + timer.stopTimeSeconds());
-            EncryptionRSA encryptionRSA = new EncryptionRSA();
-            DecryptionRSA decryptionRSA = new DecryptionRSA();
-            try {
-                list = readFile.readFile("Text.txt", Parameters.Encode);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            StringBuilder stringBuilder = new StringBuilder();
-            for (String j : list) {
-                stringBuilder.append(j);
-            }
-            BigInteger[] ints = encryptionRSA.encryptionRSA(stringBuilder.toString());
-            System.out.println();
-            System.out.println("Расшифрованое сообщение: " + decryptionRSA.decryptionRSA(ints));
+            GetFileForDecryption decryption = new GetFileForDecWin();
+            GetFileForEncryption encryption = new GetFileForEncWin();
+            byte[] message = new byte[240];
+            new Random().nextBytes(message);
+            timer.start();
+            BigInteger[] dec = encryption.getFileForEncryption(message);
+            System.out.println("DoThis getFileForEncryption timer: " + timer.stopTimeMillis());
+            timer2.start();
+            decryption.getFileForDecryption(dec, DecText);
+            System.out.println("DoThis getFileForDecryption timer: " + timer2.stopTimeMillis());
         }
     }
 }

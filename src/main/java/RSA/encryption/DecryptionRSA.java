@@ -4,66 +4,42 @@ import RSA.Parameters;
 import RSA.Timer;
 import RSA.logic.ConversionByDependenceOfByte;
 import RSA.logic.GetUniqueFromArray;
-import RSA.logic.Parallelizations;
+import RSA.logic.Parallelization;
 
 import java.math.BigInteger;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class DecryptionRSA {
-    private HashMap<Integer, BigInteger[]> map = new HashMap<>();
     private BigInteger[] dec;
     private BigInteger keyD;
-    private BigInteger keyN;
+    private BigInteger keyP;
+    private BigInteger keyQ;
+    private Timer timer = new Timer();
 
-    String decryptionRSA(String[] privateKey, BigInteger[] dec) {
-//        System.out.println("dec: " + dec.length);
-        this.dec = dec;
-        if (privateKey != null) {
-            keyD = new BigInteger(privateKey[0], Parameters.RadixForKeys);
-            keyN = new BigInteger(privateKey[1], Parameters.RadixForKeys);
-            return run();
-        } else return "Не удалось прочитать ключи";
-    }
-
-    public String decryptionRSA(BigInteger[] dec) {
+    public byte[] decryptionRSA(BigInteger[] dec) {
         ReadPrivateKey readPrivateKey = new ReadPrivateKey();
         this.dec = dec;
-//        System.out.println("dec: " + dec.length);
+        timer.start();
         if (readPrivateKey.readPrivateKey()) {
             keyD = new BigInteger(readPrivateKey.getD(), Parameters.RadixForKeys);
-            keyN = new BigInteger(readPrivateKey.getN(), Parameters.RadixForKeys);
+            keyP = new BigInteger(readPrivateKey.getP(), Parameters.RadixForKeys);
+            keyQ = new BigInteger(readPrivateKey.getQ(), Parameters.RadixForKeys);
             return run();
-        } else return "Не удалось прочитать ключи";
+        } else return null;
     }
 
-    private String run() {
-        int countOfThreads = Runtime.getRuntime().availableProcessors() + 2;
+    private byte[] run() {
+        int countOfThreads = Runtime.getRuntime().availableProcessors() + Parameters.availableProcessorsactor;
         ConversionByDependenceOfByte byDependenceOfByte = new ConversionByDependenceOfByte();
         GetUniqueFromArray getUniqueFromArray = new GetUniqueFromArray();
-        RSA.Timer timer = new Timer();
-        timer.start();
         ArrayList<BigInteger> uniqueList = getUniqueFromArray.getUniqueFromArray(dec);
-//        System.out.println("uniqueList.size(): " + uniqueList.size());
-        int subListSize = uniqueList.size() / countOfThreads;
-        int remainder = uniqueList.size() % countOfThreads;
-//        System.out.println("remainder: " + remainder);
-        int a = 0;
-        int j = 0;
-        for (int i = 0; i < countOfThreads; i++) {
-            if (remainder > 0) {
-                a = 1;
-                remainder--;
-            }
-            map.put(i, (uniqueList.subList(j, subListSize + j + a)).toArray(new BigInteger[0]));
-            j = j + subListSize + a;
-            a = 0;
-        }
-
+        HashMap<Integer, BigInteger[]> map = subListForThreads(uniqueList, countOfThreads);
         Thread[] threads = new Thread[map.size()];
-        Parallelizations[] parallelizations = new Parallelizations[map.size()];
-        j = 0;
+        Parallelization[] parallelizations = new Parallelization[map.size()];
+        int j = 0;
         for (HashMap.Entry<Integer, BigInteger[]> i : map.entrySet()) {
-            parallelizations[j] = new Parallelizations(i.getValue(), keyD, keyN);
+            parallelizations[j] = new Parallelization(i.getValue(), keyD, keyP, keyQ);
             threads[j] = new Thread(parallelizations[j]);
             threads[j].start();
             j++;
@@ -79,13 +55,30 @@ public class DecryptionRSA {
                 }
             }
         }
-        System.out.println("decryptionRSA общий таймер: " + timer.stopTimeMillis());
-        ArrayList<Integer> resultList = new ArrayList<>();
-        for (Parallelizations c : parallelizations) {
+        ArrayList<BigInteger> resultList = new ArrayList<>(dec.length);
+        for (Parallelization c : parallelizations) {
             resultList.addAll(c.getResultList());
         }
-//        System.out.println("resultList.size(): " + resultList.size());
-        return byDependenceOfByte.translatesBytesIntoString(getUniqueFromArray
-                .fillArrayFromUniqueInteger(dec, resultList).toArray(new Integer[0]), keyN);
+        System.out.println("decryptionRSA общий таймер: " + timer.stopTimeMillis());
+        return byDependenceOfByte.unMixByte(getUniqueFromArray.fillArrayFromUniqueBigInteger(dec, resultList)
+                .toArray(new BigInteger[0]), keyP.multiply(keyQ));
+//        return byDependenceOfByte.unMixByte(resultList.toArray(new BigInteger[0]), keyP.multiply(keyQ));
+    }
+
+    private HashMap<Integer, BigInteger[]> subListForThreads(ArrayList<BigInteger> uniqueList, int countOfThreads) {
+        int subListSize = uniqueList.size() / countOfThreads;
+        int remainder = uniqueList.size() % countOfThreads;
+        int a = 0, j = 0;
+        HashMap<Integer, BigInteger[]> map = new HashMap<>(countOfThreads);
+        for (int i = 0; i < countOfThreads; i++) {
+            if (remainder > 0) {
+                a = 1;
+                remainder--;
+            }
+            map.put(i, (uniqueList.subList(j, subListSize + j + a)).toArray(new BigInteger[0]));
+            j = j + subListSize + a;
+            a = 0;
+        }
+        return map;
     }
 }

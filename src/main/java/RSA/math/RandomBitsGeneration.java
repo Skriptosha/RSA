@@ -26,7 +26,7 @@ public class RandomBitsGeneration implements RandomGeneration {
 //            System.out.println("temp.bitLength(): " + temp.bitLength());
             int numBits = bits - temp.bitLength();
             temp = temp.shiftLeft(numBits).or(mass[new Random().nextInt(mass.length - 1)]);
-//            System.out.println("temp after shift: " + temp);
+//            System.out.println("temp after shift: " + temp.bitLength());
             if (!temp.and(BigInteger.ONE).equals(BigInteger.ZERO))
                 return temp;
         }

@@ -3,6 +3,7 @@ package RSA.encryption;
 import RSA.Parameters;
 import RSA.generateKeys.GenerateKeysRSA;
 import RSA.math.HashAlgorithmMD5;
+import tools.GetConfig;
 
 import java.time.DateTimeException;
 import java.time.LocalDate;
@@ -25,24 +26,31 @@ public class ReadPublicKey {
 
     public boolean readPublicKey(){
         List<String> lines1;
-
+        ReadFile readFile = null;
         try {
-            lines1 = new ReadFileWin().readFile(Parameters.SavePublicKey1Path, Parameters.Encode);
+            readFile = (ReadFile) Class.forName(GetConfig.getProperty("ReadFile")).newInstance();
+        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e1) {
+            e1.printStackTrace();
+        }
+        try {
+            assert readFile != null;
+            lines1 = readFile.readFile(Parameters.SavePublicKey1Path, Parameters.Encode);
             if (new HashAlgorithmMD5().isHashEquals(lines1.get(3), lines1.get(0) + lines1.get(1)
                     + lines1.get(2))) {
                 e = new String(Base64.getDecoder().decode(lines1.get(0)), Parameters.Encode);
-                String date = new String(Base64.getDecoder().decode(lines1.get(2)), Parameters.Encode);
                 //Add check for length
+                String date = new String(Base64.getDecoder().decode(lines1.get(2)), Parameters.Encode);
+
                 n = new String(Base64.getDecoder().decode(lines1.get(1)), Parameters.Encode);
                 //Add check for length
                 if (!isDateFormat(date) || !LocalDate.now().isBefore(LocalDate.parse(date))) {
-                    throw new DateTimeException("");
+                    throw new DateTimeException("Срок действия ключа истек");
                 }
             } else {
-                System.out.println("HashAlgorithmMD5 Exception");
-                throw new Exception();
+                throw new IllegalStateException("Не соответствуют контрольные суммы.");
             }
         } catch (Exception e1) {
+//            return false;
             GenerateKeysRSA generateKeysRSA = new GenerateKeysRSA();
             generateKeysRSA.generateKeysRSA(Parameters.keyLength);
             System.out.println("Exception e1");

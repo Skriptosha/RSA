@@ -17,8 +17,9 @@ public class MillerRabinTest implements IsNumberPrime {
         BigInteger two = new BigInteger("2");
         BigInteger numberTemp = primeNumber.subtract(BigInteger.ONE);
         long degree = 0;
-        if (!(primeNumber.mod(two).equals(BigInteger.ZERO))) {
+        if (!(primeNumber.and(BigInteger.ONE).equals(BigInteger.ZERO))) {
             while (true) {
+                //Оптимизировать
                 if (numberTemp.and(BigInteger.ONE).equals(BigInteger.ZERO)) {
                     numberTemp = numberTemp.shiftRight(1);
                     degree++;
@@ -33,7 +34,7 @@ public class MillerRabinTest implements IsNumberPrime {
                 BigInteger a = new BigInteger(primeNumber.bitLength()
                         - (random.nextInt(primeNumber.bitLength()) - 4) - 2, random);
                 if (a.max(two).equals(two)) a = a.add(two);
-                BigInteger x = a.modPow(new BigInteger(String.valueOf(numberTemp)), primeNumber);
+                BigInteger x = a.modPow(numberTemp, primeNumber);
                 if (x.equals(BigInteger.ONE) || x.equals(primeNumber.subtract(BigInteger.ONE))) {
                     continue;
                 }

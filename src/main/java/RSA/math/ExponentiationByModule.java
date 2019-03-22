@@ -4,9 +4,9 @@ import java.math.BigInteger;
 
 public interface ExponentiationByModule {
 
-    void exponentiationByModule();
+    BigInteger getExponentiationByModule(BigInteger basic, BigInteger degree, BigInteger module);
 
-    BigInteger getExponentiationByModule();
+    BigInteger getExponentiationByModule (BigInteger basic, BigInteger degree, BigInteger moduleP
+            , BigInteger moduleQ, BigInteger module);
 
-    void setParameters(BigInteger basic, BigInteger degree, BigInteger module);
 }
