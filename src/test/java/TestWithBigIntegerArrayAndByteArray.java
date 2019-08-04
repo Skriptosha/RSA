@@ -1,8 +1,8 @@
-import RSA.logic.BigIntegerArrayToByteArray;
-import RSA.logic.ByteArrayToBigIntegerArray;
-import RSA.logic.ConversionByDependenceOfByte;
 import org.junit.Assert;
 import org.junit.Test;
+import rsa.logic.BigIntegerArrayToByteArray;
+import rsa.logic.ByteArrayToBigIntegerArray;
+import rsa.logic.ConversionByDependenceOfByte;
 import tools.GetConfig;
 
 import java.math.BigInteger;

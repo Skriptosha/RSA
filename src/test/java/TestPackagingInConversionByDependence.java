@@ -1,11 +1,16 @@
-import RSA.logic.ConversionByDependenceOfByte;
 import org.junit.Assert;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import rsa.logic.ConversionByDependenceOfByte;
+import rsa.logic.MixByte;
 
 import java.math.BigInteger;
 import java.util.Random;
 
 public class TestPackagingInConversionByDependence extends BaseTestClass {
+
+    @Autowired
+    private MixByte mixByte;
 
     @Test
     public void testPackagingInConversionByDependence(){

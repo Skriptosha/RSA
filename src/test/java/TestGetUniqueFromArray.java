@@ -1,6 +1,6 @@
-import RSA.logic.GetUniqueFromArray;
 import org.junit.Assert;
 import org.junit.Test;
+import rsa.logic.GetUniqueFromArray;
 import tools.GetConfig;
 
 import java.math.BigInteger;

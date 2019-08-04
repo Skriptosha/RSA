@@ -1,9 +1,9 @@
-import RSA.encryption.GetFileForDecWin;
-import RSA.encryption.GetFileForDecryption;
-import RSA.encryption.GetFileForEncWin;
-import RSA.encryption.GetFileForEncryption;
 import org.junit.Assert;
 import org.junit.Test;
+import rsa.encryption.GetFileForDecWin;
+import rsa.encryption.GetFileForEncWin;
+import rsa.encryption.interfaces.GetFileForDecryption;
+import rsa.encryption.interfaces.GetFileForEncryption;
 import tools.GetConfig;
 
 import java.math.BigInteger;

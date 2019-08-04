@@ -1,7 +1,7 @@
-import RSA.encryption.ReadPrivateKey;
-import RSA.logic.ConversionByDependenceOfByte;
 import org.junit.Assert;
 import org.junit.Test;
+import rsa.encryption.realization.ReadPrivateKey;
+import rsa.logic.ConversionByDependenceOfByte;
 import tools.GetConfig;
 
 import java.math.BigInteger;
