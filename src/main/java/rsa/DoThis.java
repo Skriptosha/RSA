@@ -16,17 +16,12 @@ public class DoThis {
     @Autowired
     private GetFileForDecryption decryption;
 
+    @Autowired
+    private ConfigSpring configSpring;
+
     public static void main(String[] args) {
         GetConfig.setNameProperties("rsa");
-
-        ConfigSpring configSpring = new ConfigSpring();
-
-        for (String s:
-                configSpring.getApplicationContext().getBeanDefinitionNames()) {
-            System.out.println(s);
-        }
-
-        ((DoThis)(configSpring.getBean("doThis"))).run();
+        new DoThis().run();
     }
 
     private void run(){
